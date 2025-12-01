@@ -20,3 +20,40 @@ Ranking data:
 - School Rankings downloaded from SchoolDigger for Manhattan and Brooklyn.
 - I downloaded the elementary and middle school rankings separately for Manhattan and Brooklyn by printing their webpage (4 files).
 - Then I used grok to convert them into CSVs using similar prompts for Elementary and Middle school files : "Can you parse these two pdfs? These contain Middle schools in manhattan and brooklyn and their rankings. Once you parse and merge the two file, can you create a csv with the columns: school name, state rank, total schools. Order the CSV by school rank."
+
+## Python Environment Setup and Data Processing
+
+This project includes a Python script (`script.py`) for processing school data. To run it, you'll need to set up a Python virtual environment and install the required libraries.
+
+### 1. Set up a Virtual Environment
+
+It's highly recommended to use a virtual environment to manage project dependencies.
+
+```bash
+# Create a virtual environment
+python3 -m venv venv
+
+# Activate the virtual environment
+# On macOS/Linux:
+source venv/bin/activate
+# On Windows:
+# .\venv\Scripts\activate
+```
+
+### 2. Install Dependencies
+
+Once the virtual environment is activated, install the necessary Python packages:
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Run the Data Processing Script
+
+After setting up the environment and installing dependencies, you can run the `script.py` to process the data:
+
+```bash
+python script.py
+```
+
+This script will read the various CSV files (LCGMS, zoning, ranking data) and output `Elementary_Middle_School_Overlaps_Simplified.csv` in the root directory.
