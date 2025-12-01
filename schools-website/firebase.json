@@ -1,0 +1,11 @@
+{
+  "hosting": {
+    "public": "out",
+    "site": "nyc-schools",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}
