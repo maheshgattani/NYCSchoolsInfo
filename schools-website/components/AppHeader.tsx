@@ -8,7 +8,7 @@ const AppHeader: React.FC = () => {
       <Toolbar>
         <Link href="https://www.essentialx.us" passHref legacyBehavior>
           <Typography variant="h6" component="a" sx={{ flexGrow: 1, color: 'white', textDecoration: 'none', cursor: 'pointer' }}>
-            EssentialX
+            <b>EssentialX</b>
           </Typography>
         </Link>
         <Button color="inherit" href="mailto:contact@essentialx.us" sx={{ color: 'white', borderColor: 'white' }}>

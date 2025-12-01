@@ -19,7 +19,6 @@ const AppFooter: React.FC = () => {
           href="https://www.linkedin.com/company/essentialx/"
           target="_blank"
           rel="noopener noreferrer"
-          color="inherit"
           sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
         >
           Our LinkedIn
