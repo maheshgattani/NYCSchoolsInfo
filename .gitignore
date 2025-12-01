@@ -1,0 +1,35 @@
+# General ignores
+.DS_Store
+*.pyc
+__pycache__/
+venv/
+
+# Node.js and Next.js specific ignores for schools-website
+schools-website/node_modules
+schools-website/.next/
+schools-website/out/
+schools-website/build/
+schools-website/.vercel/
+schools-website/.env*
+schools-website/*.tsbuildinfo
+schools-website/next-env.d.ts
+
+# Existing ignores from schools-website/.gitignore
+# dependencies
+schools-website/.pnp
+schools-website/.pnp.*
+schools-website/.yarn/*
+!schools-website/.yarn/patches
+!schools-website/.yarn/plugins
+!schools-website/.yarn/releases
+!schools-website/.yarn/versions
+
+# testing
+schools-website/coverage
+
+# debug
+schools-website/npm-debug.log*
+schools-website/yarn-debug.log*
+schools-website/yarn-error.log*
+schools-website/.pnpm-debug.log*
+schools-website/.firebase/hosting.b3V0.cache
