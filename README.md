@@ -20,4 +20,3 @@ Ranking data:
 - School Rankings downloaded from SchoolDigger for Manhattan and Brooklyn.
 - I downloaded the elementary and middle school rankings separately for Manhattan and Brooklyn by printing their webpage (4 files).
 - Then I used grok to convert them into CSVs using similar prompts for Elementary and Middle school files : "Can you parse these two pdfs? These contain Middle schools in manhattan and brooklyn and their rankings. Once you parse and merge the two file, can you create a csv with the columns: school name, state rank, total schools. Order the CSV by school rank."
-
