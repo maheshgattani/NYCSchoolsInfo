@@ -11,6 +11,13 @@ def clean_school_name(name):
     name = str(name).lower()
     # Remove common prefixes/suffixes and special characters
     replacements = [
+        # Specific school name mappings for edge cases
+        ('academy for collaborative exploration', 'institute for collaborative education'),
+        ('kathleen grimm school for leadership and sustainability', 'kathleen grimm school for leadership'),
+        ('ps 166 richard rodgers', 'ps 166 richard rogers'),  # Rodgers vs Rogers spelling
+        ('ps is 173 fort washington in heights', 'ps 173'),
+        ('ps/ms 200 magnet of global studies and leadership', 'ps/ms 200 magnet global studi'),
+        ('ps 80 the thurgood marshall magnet school of multimedia and communication', 'ps 80 thurgood marshall magnet school of multimedia'),
         ('junior high school ', 'jhs '),
         ('j.h.s. ', 'jhs '),
         ('jhs ', 'jhs '),  # keep this to standardize after other replacements
@@ -23,10 +30,14 @@ def clean_school_name(name):
         ('i.s.', 'is'),
         ('the ', ''),            # Remove 'the' at start
         ('(the)', ''),
+        (' (the)', ''),
         (' the ', ' '),         # Remove 'the' in middle
+        ('elementary school', ''),
+        ('secondary school', ''),
+        ('high school', ''),
+        ('middle school', 'ms'),
         (' school', ''),
         (' hs', ''),
-        ('middle school', 'ms'),
         (' ms', ''),
         (' es', ''),
         ('ps 00', 'ps '),  # handle double leading zeros
@@ -47,7 +58,8 @@ def clean_school_name(name):
         ('secondary school', ''),
         ('high school', ''),
         ('sciencetech', 'science technology'),
-        ('Garnett', 'Garnet')
+        ('Garnett', 'Garnet'),
+        ('ms 419', 'ps 419'),
     ]
     for old, new in replacements:
         name = name.replace(old, new)
@@ -55,7 +67,30 @@ def clean_school_name(name):
     # Remove borough codes from end of numbers (e.g. 184m -> 184)
     name = re.sub(r'(\d+)[kxmqr]', r'\1', name)
     
-    return name.strip()
+    # Remove borough names from the end of the school name
+    # This handles cases like "P.S. 089 Bronx" -> "ps 89"
+    borough_names = ['manhattan', 'bronx', 'brooklyn', 'queens', 'staten island', 'staten is', 'jackson heights']
+    for borough in borough_names:
+        # Remove borough name if it appears at the end (with optional leading space)
+        if name.endswith(' ' + borough):
+            name = name[:-len(' ' + borough)]
+        elif name.endswith(borough):
+            name = name[:-len(borough)]
+    
+    name = name.strip()
+    
+    # Final post-processing mappings for specific edge cases
+    # These are applied AFTER all other transformations
+    final_mappings = {
+        'ps is 173 fort washington in heights': 'ps 173',
+        'ps/ms 200 magnet of global studies and leadership': 'ps/ms 200 magnet global studi',
+        'ps 166 richard rodgers of arts and technology': 'ps 166 richard rogers of arts & science',
+    }
+    
+    if name in final_mappings:
+        name = final_mappings[name]
+    
+    return name
 
 def main():
     # Read the CSV files
@@ -185,8 +220,29 @@ def main():
 
     # Print ranking statistics for zoned schools
     print("\nRanking Statistics (Zoned Schools Only):")
-    print(f"Zoned schools not ranked in Elementary SchoolDigger: {(zoned_schools_df['Elementary SchoolDigger Rank'] == 'Not Ranked').sum()}")
-    print(f"Zoned schools not ranked in Middle SchoolDigger: {(zoned_schools_df['Middle SchoolDigger Rank'] == 'Not Ranked').sum()}")
+    
+    # Calculate unranked schools correctly by filtering for the specific level first
+    unranked_elem = zoned_schools_df[
+        (zoned_schools_df['Zoned Elementary'] == 'Yes') & 
+        (zoned_schools_df['Elementary SchoolDigger Rank'] == 'Not Ranked')
+    ]
+    
+    unranked_middle = zoned_schools_df[
+        (zoned_schools_df['Zoned Middle'] == 'Yes') & 
+        (zoned_schools_df['Middle SchoolDigger Rank'] == 'Not Ranked')
+    ]
+    
+    print(f"Zoned schools not ranked in Elementary SchoolDigger: {len(unranked_elem)}")
+    print(f"Zoned schools not ranked in Middle SchoolDigger: {len(unranked_middle)}")
+
+    # Save unranked schools to CSV for debugging
+    if not unranked_elem.empty:
+        unranked_elem.to_csv('debug_unranked_elementary.csv', index=False)
+        print("Saved unranked zoned elementary schools to 'debug_unranked_elementary.csv'")
+    
+    if not unranked_middle.empty:
+        unranked_middle.to_csv('debug_unranked_middle.csv', index=False)
+        print("Saved unranked zoned middle schools to 'debug_unranked_middle.csv'")
 
     # Create simplified dataframe with selected columns
     simplified_columns = [
@@ -280,8 +336,8 @@ def main():
     elementary_zones_filtered = elementary_zones_gdf[elementary_zones_gdf['DBN'].isin(elementary_schools) & elementary_zones_gdf['DBN'].notna()]
     middle_zones_filtered = middle_zones_gdf[middle_zones_gdf['DBN'].isin(k8_and_middle_schools) & middle_zones_gdf['DBN'].notna()]
 
-    print(f"Number of filtered elementary schools: {len(elementary_zones_filtered)}")
-    print(f"Number of filtered middle schools: {len(middle_zones_filtered)}")
+    print(f"Number of filtered elementary schools: {elementary_zones_filtered['DBN'].nunique()} (unique DBNs)")
+    print(f"Number of filtered middle schools: {middle_zones_filtered['DBN'].nunique()} (unique DBNs)")
 
     # Find overlaps between elementary and middle/K-8 zones
     overlaps = []
