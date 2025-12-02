@@ -404,6 +404,7 @@ def main():
         simplified_overlaps_df = simplified_overlaps_df.sort_values('Average_Rank')
         # Drop the Average_Rank column before saving
         simplified_overlaps_df = simplified_overlaps_df.drop('Average_Rank', axis=1)
+        simplified_overlaps_df = simplified_overlaps_df.drop_duplicates(subset=['Elementary_School', 'Middle_School'], keep='first')
         simplified_overlaps_df.to_csv('Elementary_Middle_School_Overlaps_Simplified.csv', index=False)
         print(f"Simplified overlaps data saved to Elementary_Middle_School_Overlaps_Simplified.csv")
 

@@ -29,6 +29,7 @@ import {
   useTheme,
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
+import DirectionsIcon from '@mui/icons-material/Directions';
 import { Inter } from 'next/font/google';
 
 const inter = Inter({
@@ -494,6 +495,60 @@ export default function Home({ rows, columns: initialColumns, schoolNames, borou
           </Box>
         );
       }
+    },
+    {
+      field: 'maps_link',
+      headerName: 'Map',
+      sortable: false,
+      minWidth: 80,
+      flex: 0.5,
+      disableColumnMenu: true,
+      headerAlign: 'center',
+      align: 'center',
+      renderHeader: (params) => (
+        <Tooltip title="Click the icon to view directions between the two schools on Google Maps." disableFocusListener={false} disableTouchListener={false}>
+          <Box tabIndex={0} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', cursor: 'help' }}>
+            <Typography variant="body2" sx={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '0.85rem', mr: 0.5 }}>
+              {params.colDef.headerName}
+            </Typography>
+            <IconButton size="small" sx={{ color: 'inherit', p: 0 }}>
+              <InfoIcon fontSize="inherit" />
+            </IconButton>
+          </Box>
+        </Tooltip>
+      ),
+      renderCell: (params: GridRenderCellParams) => {
+        const row = rows.find(r => r.id === params.id);
+        if (!row) return null;
+
+        const elemAddress = row.Elementary_Address;
+        const middleAddress = row.Middle_Address;
+
+        if (!elemAddress || !middleAddress) return null;
+
+        const mapsUrl = `https://www.google.com/maps/dir/${encodeURIComponent(elemAddress)}/${encodeURIComponent(middleAddress)}`;
+
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+            <Tooltip title="View directions between schools on Google Maps" disableFocusListener={false} disableTouchListener={false}>
+              <IconButton
+                component="a"
+                href={mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                color="primary"
+                size="small"
+                sx={{
+                  transform: 'translateY(-1px)', // Slight adjustment to align visually with text
+                  '&:hover': { transform: 'translateY(-3px)' }
+                }}
+              >
+                <DirectionsIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        );
+      },
     }
   ];
 
