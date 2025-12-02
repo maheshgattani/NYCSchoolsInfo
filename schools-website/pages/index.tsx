@@ -623,6 +623,16 @@ export default function Home({ rows, columns: initialColumns, schoolNames, borou
             >
               <strong>Disclaimer:</strong> This data is for informational purposes only. School zones can change. Always verify with official NYC DOE resources.
             </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'rgba(255, 255, 255, 0.8)',
+                fontStyle: 'italic',
+                mt: 1,
+              }}
+            >
+              <strong>Note: Rankings are sourced from SchoolDigger. Only zoned schools are included.</strong>
+            </Typography>
           </Box>
         </Box>
 
