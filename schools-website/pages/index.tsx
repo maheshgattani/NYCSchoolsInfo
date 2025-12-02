@@ -635,16 +635,21 @@ export default function Home({ rows, columns: initialColumns, schoolNames, borou
             >
               <strong>Disclaimer:</strong> This data is for informational purposes only. School zones can change. Always verify with official NYC DOE resources.
             </Typography>
-            <Typography
-              variant="body2"
+            <Box
               sx={{
                 color: 'rgba(255, 255, 255, 0.8)',
                 fontStyle: 'italic',
                 mt: 1,
+                fontSize: '0.9rem',
               }}
             >
-              <strong>Note: Rankings are sourced from SchoolDigger. <a href="https://www.nycschoolfinder.com/post/districts-and-zones" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>Only zoned</a> schools are included.</strong>
-            </Typography>
+              <strong>Note:</strong>
+              <ul style={{ margin: '0', paddingLeft: '20px' }}>
+                <li>Rankings are sourced from SchoolDigger.</li>
+                <li><a href="https://www.nycschoolfinder.com/post/districts-and-zones" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>Only zoned</a> schools can have overlapping zones.</li>
+                <li>Latest data fetched on November 2025.</li>
+              </ul>
+            </Box>
           </Box>
         </Box>
 
