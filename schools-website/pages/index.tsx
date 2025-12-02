@@ -643,7 +643,7 @@ export default function Home({ rows, columns: initialColumns, schoolNames, borou
                 mt: 1,
               }}
             >
-              <strong>Note: Rankings are sourced from SchoolDigger. Only zoned schools are included.</strong>
+              <strong>Note: Rankings are sourced from SchoolDigger. <a href="https://www.nycschoolfinder.com/post/districts-and-zones" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>Only zoned</a> schools are included.</strong>
             </Typography>
           </Box>
         </Box>
@@ -803,7 +803,7 @@ export default function Home({ rows, columns: initialColumns, schoolNames, borou
               }}
             >
               <Typography variant="h6">{school['Location Name']}</Typography>
-              <Typography sx={{ fontStyle: 'italic', color: 'primary.main', mb: 1 }}>This school is unzoned. The overlapping zones only work for zoned schools.</Typography>
+              <Typography sx={{ fontStyle: 'italic', color: 'primary.main', mb: 1 }}>This school is unzoned. The overlapping zones only work for <a href="https://www.nycschoolfinder.com/post/districts-and-zones" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>zoned schools</a>.</Typography>
               <Typography>{school['Full Address']}</Typography>
               <Typography>{school['Location Category Description']}</Typography>
             </Paper>
