@@ -11,6 +11,9 @@ const AppHeader: React.FC = () => {
             <b>EssentialX</b>
           </Typography>
         </Link>
+        <Button color="inherit" href="https://www.paypal.com/ncp/payment/MZVYKAFW3NBGQ" sx={{ color: 'white', borderColor: 'white', marginRight: 2 }}>
+          Donate
+        </Button>
         <Button color="inherit" href="mailto:contact@essentialx.us" sx={{ color: 'white', borderColor: 'white' }}>
           Contact
         </Button>
