@@ -33,3 +33,4 @@ schools-website/yarn-debug.log*
 schools-website/yarn-error.log*
 schools-website/.pnpm-debug.log*
 schools-website/.firebase/hosting.b3V0.cache
+.DS_Store
