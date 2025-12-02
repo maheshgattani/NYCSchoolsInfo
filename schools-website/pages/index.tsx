@@ -44,11 +44,17 @@ interface SchoolData {
   [key: string]: any;
 }
 
+interface SchoolNameOption {
+  name: string;
+  type: 'zoned' | 'unzoned';
+}
+
 interface HomeProps {
   rows: SchoolData[];
   columns: GridColDef[];
-  schoolNames: string[];
+  schoolNames: SchoolNameOption[];
   boroughNames: string[];
+  unzonedSchools: SchoolData[];
 }
 
 const lightTheme = createTheme({
@@ -213,16 +219,23 @@ const darkTheme = createTheme({
   },
 });
 
-export default function Home({ rows, columns: initialColumns, schoolNames, boroughNames }: HomeProps) {
-  const [nameFilter, setNameFilter] = useState<string[]>([]);
+export default function Home({ rows, columns: initialColumns, schoolNames, boroughNames, unzonedSchools }: HomeProps) {
+  const [nameFilter, setNameFilter] = useState<SchoolNameOption[]>([]);
   const [elementaryBoroughFilter, setElementaryBoroughFilter] = useState<string[]>(['Manhattan', 'Brooklyn']);
   const [middleBoroughFilter, setMiddleBoroughFilter] = useState<string[]>(['Manhattan', 'Brooklyn']);
+
+  const zonedNameFilter = useMemo(() => nameFilter.filter(f => f.type === 'zoned').map(f => f.name), [nameFilter]);
+  const selectedUnzonedSchools = useMemo(() => {
+    const unzonedNames = nameFilter.filter(f => f.type === 'unzoned').map(f => f.name);
+    return unzonedSchools.filter(s => unzonedNames.includes(s['Location Name']));
+  }, [nameFilter, unzonedSchools]);
+
 
   const filteredRows = useMemo(() => {
     return rows.filter((row) => {
       const nameMatch =
-        nameFilter.length === 0 ||
-        nameFilter.some(filterName => row['Elementary_School'] === filterName || row['Middle_School'] === filterName);
+        zonedNameFilter.length === 0 ||
+        zonedNameFilter.some(filterName => row['Elementary_School'] === filterName || row['Middle_School'] === filterName);
       const elementaryBoroughMatch =
         elementaryBoroughFilter.length === 0 ||
         elementaryBoroughFilter.includes(row['Elementary_Borough']);
@@ -231,7 +244,7 @@ export default function Home({ rows, columns: initialColumns, schoolNames, borou
         middleBoroughFilter.includes(row['Middle_Borough']);
       return nameMatch && elementaryBoroughMatch && middleBoroughMatch;
     });
-  }, [rows, nameFilter, elementaryBoroughFilter, middleBoroughFilter]);
+  }, [rows, zonedNameFilter, elementaryBoroughFilter, middleBoroughFilter]);
 
   function CustomPagination() {
     return <GridPagination />;
@@ -552,7 +565,6 @@ export default function Home({ rows, columns: initialColumns, schoolNames, borou
     }
   ];
 
-
   const currentTheme = darkTheme; // Always use dark theme
 
   return (
@@ -659,9 +671,12 @@ export default function Home({ rows, columns: initialColumns, schoolNames, borou
                 <Autocomplete
                   multiple
                   options={schoolNames}
+                  getOptionLabel={(option) => option.name}
+                  isOptionEqualToValue={(option, value) => option.name === value.name && option.type === value.type}
                   value={nameFilter}
-                  onChange={(event, newValue) => setNameFilter(newValue as string[])}
+                  onChange={(event, newValue) => setNameFilter(newValue as SchoolNameOption[])}
                   renderInput={(params) => <TextField {...params} label="Filter by School Name" size="small" />}
+                  noOptionsText="School not found."
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
@@ -684,84 +699,116 @@ export default function Home({ rows, columns: initialColumns, schoolNames, borou
               </Grid>
             </Grid>
           </Box>
-          <DataGrid
-            rows={filteredRows}
-            columns={columns}
-            pageSizeOptions={[10, 20, 50, 100]}
-            pagination={true}
-            slots={{
-              pagination: CustomPagination,
-            }}
-            initialState={{
-              sorting: {
-                sortModel: [{ field: 'Average_Rank', sort: 'asc' }],
-              },
-              pagination: {
-                paginationModel: {
-                  pageSize: 10,
+          {(zonedNameFilter.length > 0 || nameFilter.length === 0) && (
+            <DataGrid
+              rows={filteredRows}
+              columns={columns}
+              pageSizeOptions={[10, 20, 50, 100]}
+              pagination={true}
+              slots={{
+                pagination: CustomPagination,
+                noRowsOverlay: () => (
+                  <Box sx={{ p: 2, textAlign: 'center' }}>
+                    <Typography>
+                      No overlapping zoned schools found for the selected filters.
+                    </Typography>
+                  </Box>
+                ),
+              }}
+              initialState={{
+                sorting: {
+                  sortModel: [{ field: 'Average_Rank', sort: 'asc' }],
                 },
-              },
-            }}
-            sx={(theme) => ({
-              border: 0,
-              '& .MuiDataGrid-columnHeaders': {
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: '#ffffff',
-                fontSize: '0.95rem',
-                fontWeight: 600,
-                borderRadius: 0,
-                minHeight: '56px !important',
-                maxHeight: '56px !important',
-                lineHeight: '56px !important',
-              },
-              '& .MuiDataGrid-columnHeaderTitle': {
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                fontSize: '0.85rem',
-              },
-              '& .MuiDataGrid-cell': {
-                borderBottom: `1px solid ${theme.palette.divider}`,
-                fontSize: '0.9rem',
-                padding: '12px 16px',
-              },
-              '& .MuiDataGrid-row': {
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  backgroundColor: theme.palette.mode === 'dark'
-                    ? 'rgba(129, 140, 248, 0.08)'
-                    : 'rgba(102, 126, 234, 0.05)',
-                  transform: 'scale(1.001)',
+                pagination: {
+                  paginationModel: {
+                    pageSize: 10,
+                  },
                 },
-              },
-              '& .MuiDataGrid-footerContainer': {
-                borderTop: `2px solid ${theme.palette.divider}`,
-                background: theme.palette.mode === 'dark'
-                  ? 'rgba(15, 23, 42, 0.5)'
-                  : 'rgba(248, 250, 252, 0.8)',
-              },
-              '& .MuiTablePagination-root': {
-                color: theme.palette.text.primary,
-              },
-              '& .MuiDataGrid-virtualScroller': {
-                '&::-webkit-scrollbar': {
-                  width: '12px',
-                  height: '12px',
+              }}
+              sx={(theme) => ({
+                border: 0,
+                '& .MuiDataGrid-columnHeaders': {
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: '#ffffff',
+                  fontSize: '0.95rem',
+                  fontWeight: 600,
+                  borderRadius: 0,
+                  minHeight: '56px !important',
+                  maxHeight: '56px !important',
+                  lineHeight: '56px !important',
                 },
-                '&::-webkit-scrollbar-track': {
-                  background: theme.palette.background.default,
+                '& .MuiDataGrid-columnHeaderTitle': {
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  fontSize: '0.85rem',
                 },
-                '&::-webkit-scrollbar-thumb': {
-                  background: theme.palette.primary.main,
-                  borderRadius: '6px',
-                  border: `3px solid ${theme.palette.background.default}`,
+                '& .MuiDataGrid-cell': {
+                  borderBottom: `1px solid ${theme.palette.divider}`,
+                  fontSize: '0.9rem',
+                  padding: '12px 16px',
                 },
-                '&::-webkit-scrollbar-thumb:hover': {
-                  background: theme.palette.primary.dark,
+                '& .MuiDataGrid-row': {
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    backgroundColor: theme.palette.mode === 'dark'
+                      ? 'rgba(129, 140, 248, 0.08)'
+                      : 'rgba(102, 126, 234, 0.05)',
+                    transform: 'scale(1.001)',
+                  },
                 },
-              },
-            })}
-          />
+                '& .MuiDataGrid-footerContainer': {
+                  borderTop: `2px solid ${theme.palette.divider}`,
+                  background: theme.palette.mode === 'dark'
+                    ? 'rgba(15, 23, 42, 0.5)'
+                    : 'rgba(248, 250, 252, 0.8)',
+                },
+                '& .MuiTablePagination-root': {
+                  color: theme.palette.text.primary,
+                },
+                '& .MuiDataGrid-virtualScroller': {
+                  '&::-webkit-scrollbar': {
+                    width: '12px',
+                    height: '12px',
+                  },
+                  '&::-webkit-scrollbar-track': {
+                    background: theme.palette.background.default,
+                  },
+                  '&::-webkit-scrollbar-thumb': {
+                    background: theme.palette.primary.main,
+                    borderRadius: '6px',
+                    border: `3px solid ${theme.palette.background.default}`,
+                  },
+                  '&::-webkit-scrollbar-thumb:hover': {
+                    background: theme.palette.primary.dark,
+                  },
+                },
+              })}
+            />
+          )}
+
+          {selectedUnzonedSchools.length > 0 && selectedUnzonedSchools.map(school => (
+            <Paper
+              key={school.id}
+              elevation={0}
+              sx={{
+                width: '100%',
+                borderRadius: 3,
+                background: 'rgba(30, 41, 59, 0.8)',
+                backdropFilter: 'blur(16px)',
+                border: '1px solid rgba(148, 163, 184, 0.12)',
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)',
+                p: 2.5,
+                mt: 4,
+              }}
+            >
+              <Typography variant="h6">{school['Location Name']}</Typography>
+              <Typography sx={{ fontStyle: 'italic', color: 'primary.main', mb: 1 }}>This school is unzoned. The overlapping zones only work for zoned schools.</Typography>
+              <Typography>{school['Full Address']}</Typography>
+              <Typography>{school['Location Category Description']}</Typography>
+            </Paper>
+          ))}
+
         </Paper>
       </Container>
     </ThemeProvider>
@@ -773,8 +820,24 @@ export const getStaticProps: GetStaticProps = async () => {
   const csvFileContent = fs.readFileSync(csvFilePath, 'utf8');
   const parsedCsv = Papa.parse(csvFileContent, { header: true, skipEmptyLines: true });
 
+  const unzonedCsvFilePath = path.join(process.cwd(), '..', 'unzoned_schools.csv');
+  const unzonedCsvFileContent = fs.readFileSync(unzonedCsvFilePath, 'utf8');
+  const unzonedParsedCsv = Papa.parse(unzonedCsvFileContent, { header: true, skipEmptyLines: true });
+
   const rows: SchoolData[] = parsedCsv.data.map((row: any, index) => {
     const trimmedRow: { [key: string]: any } = { id: index };
+    for (const key in row) {
+      if (typeof row[key] === 'string') {
+        trimmedRow[key] = row[key].trim();
+      } else {
+        trimmedRow[key] = row[key];
+      }
+    }
+    return trimmedRow as SchoolData;
+  });
+
+  const unzonedSchools: SchoolData[] = unzonedParsedCsv.data.map((row: any, index) => {
+    const trimmedRow: { [key: string]: any } = { id: `u${index}` };
     for (const key in row) {
       if (typeof row[key] === 'string') {
         trimmedRow[key] = row[key].trim();
@@ -796,7 +859,15 @@ export const getStaticProps: GetStaticProps = async () => {
       }))
     : [];
 
-  const schoolNames = Array.from(new Set(rows.flatMap(r => [r.Elementary_School, r.Middle_School]).filter(Boolean) as string[])).sort();
+  const zonedSchoolNames = Array.from(new Set(rows.flatMap(r => [r.Elementary_School, r.Middle_School]).filter(Boolean) as string[]));
+  const unzonedSchoolNames = Array.from(new Set(unzonedSchools.map(s => s['Location Name']).filter(Boolean) as string[]));
+
+  const schoolNames: SchoolNameOption[] = [
+    ...zonedSchoolNames.map(name => ({ name, type: 'zoned' as 'zoned' })),
+    ...unzonedSchoolNames.map(name => ({ name, type: 'unzoned' as 'unzoned' }))
+  ].sort((a, b) => a.name.localeCompare(b.name));
+
+
   const boroughNames = Array.from(new Set(rows.flatMap(r => [r.Elementary_Borough, r.Middle_Borough]).filter(Boolean) as string[])).sort();
 
   return {
@@ -804,7 +875,8 @@ export const getStaticProps: GetStaticProps = async () => {
       rows,
       columns,
       schoolNames,
-      boroughNames
+      boroughNames,
+      unzonedSchools,
     },
   };
 };

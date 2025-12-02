@@ -417,6 +417,38 @@ def main():
     else:
         print("\nNo overlapping zones found between elementary and middle/K-8 schools")
 
+    # Create a dataframe for unzoned schools
+    unzoned_schools_df = lcgms_df[
+        (lcgms_df['Zoned Elementary'] == 'No') &
+        (lcgms_df['Zoned Middle'] == 'No') &
+        (lcgms_df['Zoned High'] == 'No')
+    ].copy()
+
+    # Add Borough and Full Address to unzoned schools dataframe
+    unzoned_schools_df['Borough'] = unzoned_schools_df['City'].str.replace(r'(?i)staten\s+is(?!land)', 'Staten Island', regex=True).str.title()
+    unzoned_schools_df['Full Address'] = unzoned_schools_df.apply(
+        lambda x: f"{x['Primary Address']}, {x['City']}, {x['State Code']} {x['Zip']}",
+        axis=1
+    )
+
+    # Select and reorder columns for the unzoned schools CSV
+    unzoned_columns = [
+        'ATS System Code',
+        'Location Name',
+        'Location Category Description',
+        'Borough',
+        'Full Address',
+        'Zoned Elementary',
+        'Zoned Middle',
+        'Zoned High'
+    ]
+    unzoned_simplified_df = unzoned_schools_df[unzoned_columns]
+
+    # Save the unzoned schools to a CSV file
+    unzoned_simplified_df.to_csv('unzoned_schools.csv', index=False)
+    print(f"\nUnzoned schools data saved to unzoned_schools.csv")
+
+
     # Save all dataframes to CSV files
     # lcgms_df.to_csv('LCGMS_SchoolData_with_Zones.csv', index=False)
     # zoned_schools_df.to_csv('LCGMS_SchoolData_Zoned_Only.csv', index=False)
