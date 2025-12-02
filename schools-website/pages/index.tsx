@@ -624,7 +624,7 @@ export default function Home({ rows, columns: initialColumns, schoolNames, borou
                 fontSize: '1.1rem',
               }}
             >
-              Discover and explore overlapping elementary and middle school zones across New York City.
+              Discover and explore the <i>zoned</i> middle schools that share zones with <i>zoned</i> elementary schools.
             </Typography>
             <Typography
               variant="body2"
@@ -646,8 +646,8 @@ export default function Home({ rows, columns: initialColumns, schoolNames, borou
               <strong>Note:</strong>
               <ul style={{ margin: '0', paddingLeft: '20px' }}>
                 <li>Rankings are sourced from SchoolDigger.</li>
-                <li><a href="https://www.nycschoolfinder.com/post/districts-and-zones" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>Only zoned</a> schools can have overlapping zones.</li>
                 <li>Latest data fetched on November 2025.</li>
+                <li><a href="https://www.nycschoolfinder.com/post/districts-and-zones" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>Only zoned</a> schools included for overlapping zones.</li>
               </ul>
             </Box>
           </Box>
