@@ -539,11 +539,20 @@ export default function Home({ rows, columns: initialColumns, schoolNames, borou
 
         if (!elemAddress || !middleAddress) return null;
 
-        const mapsUrl = `https://www.google.com/maps/dir/${encodeURIComponent(elemAddress)}/${encodeURIComponent(middleAddress)}`;
+        let mapsUrl: string;
+        let tooltipTitle: string;
+
+        if (elemAddress === middleAddress) {
+          mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(elemAddress)}`;
+          tooltipTitle = "View school location on Google Maps";
+        } else {
+          mapsUrl = `https://www.google.com/maps/dir/${encodeURIComponent(elemAddress)}/${encodeURIComponent(middleAddress)}`;
+          tooltipTitle = "View directions between schools on Google Maps";
+        }
 
         return (
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
-            <Tooltip title="View directions between schools on Google Maps" disableFocusListener={false} disableTouchListener={false}>
+            <Tooltip title={tooltipTitle} disableFocusListener={false} disableTouchListener={false}>
               <IconButton
                 component="a"
                 href={mapsUrl}
